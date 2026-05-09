@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotebookLM Clone - Powered by Gemini</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Include marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar for Document Management -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>NotebookLM<span>Clone</span></h2>
+                <p>Powered by Gemini API</p>
+            </div>
+            
+            <div class="upload-section">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="file-upload" accept=".pdf,.txt" hidden />
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <p>Drag & Drop or <span>Click to Upload</span></p>
+                    <span class="file-types">Supports PDF, TXT</span>
+                </div>
+                
+                <div id="upload-status" class="status-message hidden">
+                    <div class="spinner"></div>
+                    <span>Processing Document...</span>
+                </div>
+            </div>
+
+            <div class="document-list">
+                <h3>Active Documents</h3>
+                <div id="active-doc" class="doc-item hidden">
+                    <svg class="doc-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <div class="doc-info">
+                        <span id="doc-name" class="doc-name">document.pdf</span>
+                        <span class="doc-status">Indexed & Ready</span>
+                    </div>
+                </div>
+                <p id="no-docs" class="no-docs-msg">No document uploaded yet. Upload one to start chatting!</p>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <h1>Chat with your Document</h1>
+                <div class="header-actions">
+                    <span class="badge ai-badge">Gemini 2.5 Flash</span>
+                </div>
+            </header>
+
+            <div class="messages-container" id="messages-container">
+                <div class="message system-message">
+                    <div class="message-avatar">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <div class="message-content">
+                        <p>Welcome! Please upload a PDF or TXT file from the sidebar. Once it's indexed, you can ask me any questions about its content.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Ask a question about your document..." disabled />
+                    <button type="submit" id="send-btn" disabled>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </form>
+                <div class="footer-note">Responses are grounded entirely in the uploaded document.</div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
