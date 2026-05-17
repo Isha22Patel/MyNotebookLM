@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Document Intelligence</title>
+    <title>MyNotebookLM — Advanced RAG Intelligence</title>
+    <meta name="description" content="Query your documents with an 8-stage Advanced RAG pipeline featuring typo correction, sub-query decomposition, HyDE, re-ranking, and corrective RAG.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,47 +13,47 @@
 </head>
 <body>
     <div class="app-layout">
-        <!-- Sidebar Navigation -->
         <aside class="side-panel">
             <div class="brand-header">
                 <div class="brand-logo">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 </div>
                 <div class="brand-text">
-                    <h1>Nexus</h1>
-                    <span class="badge">Enterprise</span>
+                    <h1>MyNotebookLM</h1>
+                    <span class="badge">Advanced RAG</span>
                 </div>
             </div>
 
             <div class="side-content">
-                <button class="action-btn outline" id="new-chat-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    New Session
-                </button>
 
                 <div class="document-section">
                     <div class="section-title">
                         <span>Active Context</span>
                         <div class="pulse-indicator" id="doc-status-indicator"></div>
                     </div>
-                    
                     <div class="context-card">
                         <div id="active-doc-info" class="doc-active hidden">
-                            <svg class="doc-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <svg class="doc-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
                             <div class="doc-meta">
                                 <span id="doc-name" class="doc-title">document.pdf</span>
-                                <span class="doc-status" id="doc-status-text">Indexed & Ready</span>
+                                <span class="doc-status" id="doc-status-text">Indexed &amp; Ready</span>
                             </div>
                         </div>
-                        <div id="no-doc-info" class="doc-empty">
-                            <p>No document selected</p>
-                        </div>
+                        <div id="no-doc-info" class="doc-empty"><p>No document selected</p></div>
                     </div>
-
                     <button class="action-btn primary" id="open-upload-modal-btn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                         Upload Document
                     </button>
+                </div>
+
+                <div class="pipeline-legend">
+                    <div class="section-title"><span>Active Pipeline</span></div>
+                    <div class="stage-list" id="stage-list">
+                        <div class="stage-item"><span class="stage-num">①</span><span>Query Rewriting</span></div>
+                        <div class="stage-item"><span class="stage-num">②</span><span>Semantic Retrieval</span></div>
+                        <div class="stage-item"><span class="stage-num">③</span><span>Final Generation</span></div>
+                    </div>
                 </div>
             </div>
 
@@ -64,11 +65,12 @@
             </div>
         </aside>
 
-        <!-- Main Workspace -->
         <main class="main-workspace">
             <header class="workspace-header">
                 <h2>Knowledge Assistant</h2>
-                <div class="model-badge">Powered by Gemini AI</div>
+                <div class="header-right">
+                    <div class="model-badge">Gemini Flash</div>
+                </div>
             </header>
             
             <div class="conversation-area">
@@ -76,47 +78,38 @@
                     <div class="onboarding-view" id="welcome-screen">
                         <div class="onboarding-icon">✨</div>
                         <h2>Unlock Your Documents</h2>
-                        <p>Upload a PDF or text file to start a conversation with its contents. Our intelligent RAG system will extract insights and answer your questions with precise citations.</p>
-                        
+                        <p>Upload a PDF or text file. Our <strong>Lightning Fast RAG pipeline</strong> auto-corrects typos and retrieves the most relevant context in seconds.</p>
                         <div class="capabilities">
                             <div class="cap-card">
-                                <h4>Instant Answers</h4>
-                                <p>Query dense reports</p>
+                                <h4>🔤 Typo Resilient</h4>
+                                <p>Auto-corrects spelling before retrieval</p>
                             </div>
                             <div class="cap-card">
-                                <h4>Verifiable</h4>
-                                <p>Source citations included</p>
+                                <h4>⚡ Lightning Fast</h4>
+                                <p>Optimized 3-stage semantic retrieval</p>
                             </div>
                         </div>
-
-                        <button class="action-btn primary large" id="welcome-upload-btn">
-                            Get Started
-                        </button>
+                        <button class="action-btn primary large" id="welcome-upload-btn">Get Started</button>
                     </div>
                 </div>
 
                 <div class="input-zone">
                     <form id="chat-form" class="compose-form">
                         <div class="compose-box">
-                            <input
-                                type="text"
-                                id="chat-input"
-                                class="compose-input"
+                            <input type="text" id="chat-input" class="compose-input"
                                 placeholder="Upload a document to start asking questions..."
-                                disabled
-                                autocomplete="off"
-                            />
+                                disabled autocomplete="off" />
                             <button type="submit" id="send-btn" class="send-action" disabled title="Send message">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                             </button>
                         </div>
+                        <p class="compose-hint">Try asking with typos — the pipeline auto-corrects!</p>
                     </form>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Upload Modal -->
     <div id="upload-modal" class="modal-overlay hidden">
         <div class="modal-backdrop" id="modal-backdrop"></div>
         <div class="dialog-box">
@@ -126,7 +119,6 @@
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
-
             <div class="dialog-body">
                 <div class="drop-zone" id="upload-area">
                     <input type="file" id="file-upload" accept=".pdf,.txt" hidden />
@@ -136,7 +128,6 @@
                     <h4>Click or drag document here</h4>
                     <p>Supports PDF and TXT files</p>
                 </div>
-
                 <div id="upload-status" class="status-zone hidden">
                     <div class="spinner"></div>
                     <p id="upload-status-text">Processing document...</p>

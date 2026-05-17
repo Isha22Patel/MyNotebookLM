@@ -1,71 +1,55 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Modal Elements
-    const uploadModal = document.getElementById('upload-modal');
-    const openUploadBtn = document.getElementById('open-upload-modal-btn');
-    const welcomeUploadBtn = document.getElementById('welcome-upload-btn');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const modalBackdrop = document.getElementById('modal-backdrop');
-    
-    // Upload Elements
-    const uploadArea = document.getElementById('upload-area');
-    const fileUpload = document.getElementById('file-upload');
-    const uploadStatus = document.getElementById('upload-status');
-    const uploadStatusText = document.getElementById('upload-status-text');
-    
-    // Sidebar Elements
-    const activeDocInfo = document.getElementById('active-doc-info');
-    const noDocInfo = document.getElementById('no-doc-info');
-    const docName = document.getElementById('doc-name');
-    const docStatusText = document.getElementById('doc-status-text');
-    const docStatusIndicator = document.getElementById('doc-status-indicator');
-    const newChatBtn = document.getElementById('new-chat-btn');
-    
-    // Chat Elements
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
+    // ── Element refs ────────────────────────────────────────────────────────
+    const uploadModal       = document.getElementById('upload-modal');
+    const openUploadBtn     = document.getElementById('open-upload-modal-btn');
+    const welcomeUploadBtn  = document.getElementById('welcome-upload-btn');
+    const closeModalBtn     = document.getElementById('close-modal-btn');
+    const modalBackdrop     = document.getElementById('modal-backdrop');
+
+    const uploadArea        = document.getElementById('upload-area');
+    const fileUpload        = document.getElementById('file-upload');
+    const uploadStatus      = document.getElementById('upload-status');
+    const uploadStatusText  = document.getElementById('upload-status-text');
+
+    const activeDocInfo     = document.getElementById('active-doc-info');
+    const noDocInfo         = document.getElementById('no-doc-info');
+    const docName           = document.getElementById('doc-name');
+    const docStatusText     = document.getElementById('doc-status-text');
+    const docStatusIndicator= document.getElementById('doc-status-indicator');
+    const newChatBtn        = document.getElementById('new-chat-btn');
+
+    const chatForm          = document.getElementById('chat-form');
+    const chatInput         = document.getElementById('chat-input');
+    const sendBtn           = document.getElementById('send-btn');
     const messagesContainer = document.getElementById('messages-container');
-    const welcomeScreen = document.getElementById('welcome-screen');
+    const welcomeScreen     = document.getElementById('welcome-screen');
 
-    let currentDocId = null;
+    const stageList         = document.getElementById('stage-list');
+
+    let currentDocId       = null;
     let currentDocFileName = null;
+    let currentMode        = 'fast'; // 'fast' | 'thorough'
 
-    // --- Modal Handling ---
-    const openModal = () => uploadModal.classList.remove('hidden');
-    const closeModal = () => {
-        uploadModal.classList.add('hidden');
-        resetUploadUI();
-    };
+    // ── Modal ────────────────────────────────────────────────────────────────
+    const openModal  = () => uploadModal.classList.remove('hidden');
+    const closeModal = () => { uploadModal.classList.add('hidden'); resetUploadUI(); };
 
     openUploadBtn.addEventListener('click', openModal);
     welcomeUploadBtn.addEventListener('click', openModal);
     closeModalBtn.addEventListener('click', closeModal);
     modalBackdrop.addEventListener('click', closeModal);
 
-    // --- Upload Handling ---
+    // ── Upload ───────────────────────────────────────────────────────────────
     uploadArea.addEventListener('click', () => fileUpload.click());
-
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-    });
-
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', e => {
         e.preventDefault();
         uploadArea.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-            handleFileUpload(e.dataTransfer.files[0]);
-        }
+        if (e.dataTransfer.files.length > 0) handleFileUpload(e.dataTransfer.files[0]);
     });
-
-    fileUpload.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleFileUpload(e.target.files[0]);
-        }
+    fileUpload.addEventListener('change', e => {
+        if (e.target.files.length > 0) handleFileUpload(e.target.files[0]);
     });
 
     function resetUploadUI() {
@@ -79,180 +63,184 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please upload a PDF or TXT file.');
             return;
         }
-
         const formData = new FormData();
         formData.append('file', file);
 
-        // Show uploading state
         uploadArea.classList.add('hidden');
         uploadStatus.classList.remove('hidden');
-        uploadStatusText.textContent = `Uploading and indexing ${file.name}...`;
+        uploadStatusText.textContent = `Indexing ${file.name}…`;
 
         try {
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-
+            const response = await fetch('/upload', { method: 'POST', body: formData });
             const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Upload failed');
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Upload failed');
-            }
-
-            // Success
-            currentDocId = data.docId;
+            currentDocId       = data.docId;
             currentDocFileName = file.name;
-            
-            // Update Sidebar UI
+
             docName.textContent = file.name;
-            docName.title = file.name;
-            docStatusText.textContent = 'Ready to analyze';
+            docName.title       = file.name;
+            docStatusText.textContent = 'Indexed & Ready';
             docStatusIndicator.classList.add('active');
             noDocInfo.classList.add('hidden');
             activeDocInfo.classList.remove('hidden');
-            
-            // Update Chat UI
+
             welcomeScreen.classList.add('hidden');
-            chatInput.disabled = false;
-            sendBtn.disabled = false;
-            chatInput.placeholder = `Ask a question about ${file.name}...`;
+            chatInput.disabled       = false;
+            sendBtn.disabled         = false;
+            chatInput.placeholder    = `Ask anything about ${file.name}…`;
             chatInput.focus();
 
-            addSystemMessage(`Document **${file.name}** has been successfully processed and indexed. You can now ask me questions about it.`);
-            
-            // Close modal
-            setTimeout(() => {
-                closeModal();
-            }, 500);
+            addSystemMessage(`Document **${file.name}** indexed! The Lightning Fast RAG pipeline is ready. Try asking a question — even with typos!`, null, null);
 
+            setTimeout(closeModal, 500);
         } catch (error) {
             alert(error.message);
             resetUploadUI();
         }
     }
 
-    // --- New Chat ---
+    // ── New Chat ─────────────────────────────────────────────────────────────
     newChatBtn.addEventListener('click', () => {
         if (!currentDocId) return;
-        
-        // Keep document, clear chat
-        const messages = messagesContainer.querySelectorAll('.message');
-        messages.forEach(msg => msg.remove());
-        
+        messagesContainer.querySelectorAll('.message').forEach(m => m.remove());
         welcomeScreen.classList.add('hidden');
-        addSystemMessage(`Started a new session for **${currentDocFileName}**. What would you like to know?`);
+        addSystemMessage(`New session started for **${currentDocFileName}**. What would you like to know?`, null, null);
         chatInput.focus();
     });
 
-    // --- Chat Handling ---
-    chatForm.addEventListener('submit', async (e) => {
+    // ── Chat Submit ──────────────────────────────────────────────────────────
+    chatForm.addEventListener('submit', async e => {
         e.preventDefault();
-        
         const question = chatInput.value.trim();
         if (!question || !currentDocId) return;
 
-        // Add User Message
         addUserMessage(question);
-        chatInput.value = '';
-        
-        // Disable input while generating
+        chatInput.value  = '';
         chatInput.disabled = true;
-        sendBtn.disabled = true;
+        sendBtn.disabled   = true;
 
-        // Show typing indicator
         const typingId = addTypingIndicator();
 
         try {
             const response = await fetch('/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question, docId: currentDocId })
+                body: JSON.stringify({ question, docId: currentDocId, mode: currentMode }),
             });
-
             const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Failed to get answer');
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to get answer');
-            }
-
-            // Remove typing indicator
             document.getElementById(typingId).remove();
-
-            // Add AI response
-            addSystemMessage(data.answer, data.contextChunks);
-
+            addSystemMessage(data.answer, data.contextChunks, data.pipeline);
         } catch (error) {
             document.getElementById(typingId).remove();
-            addSystemMessage(`**Error:** ${error.message}`);
+            addSystemMessage(`**Error:** ${error.message}`, null, null);
         } finally {
             chatInput.disabled = false;
-            sendBtn.disabled = false;
+            sendBtn.disabled   = false;
             chatInput.focus();
         }
     });
 
+    // ── Message Renderers ────────────────────────────────────────────────────
     function addUserMessage(text) {
         const id = 'msg-' + Date.now();
-        const msgHTML = `
+        messagesContainer.insertAdjacentHTML('beforeend', `
             <div class="message user-message" id="${id}">
                 <div class="message-avatar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </div>
-                <div class="message-content">
-                    <p>${escapeHTML(text)}</p>
-                </div>
-            </div>
-        `;
-        messagesContainer.insertAdjacentHTML('beforeend', msgHTML);
+                <div class="message-content"><p>${escapeHTML(text)}</p></div>
+            </div>`);
         scrollToBottom();
         return id;
     }
 
-    function addSystemMessage(markdownText, chunks = null) {
+    function addSystemMessage(markdownText, chunks, pipeline) {
         const id = 'msg-' + Date.now();
-        
-        let htmlContent = marked.parse(markdownText);
+        const htmlContent = marked.parse(markdownText);
 
-        let citationsHTML = '';
-        if (chunks && chunks.length > 0) {
-            const chunksList = chunks.map((c, i) => `
-                <div class="citation-chunk">
-                    <strong>MEM-NODE ${i + 1}</strong>
-                    <p style="margin: 4px 0 0 0; font-size: 11px; opacity: 0.7;">${escapeHTML(c.pageContent.substring(0, 180))}...</p>
-                </div>
-            `).join('');
+        // ── Pipeline Trace ──────────────────────────────────────────────
+        let pipelineHTML = '';
+        if (pipeline) {
+            const didRewrite = pipeline.rewrittenQuery &&
+                pipeline.rewrittenQuery.toLowerCase() !== pipeline.originalQuery.toLowerCase();
 
-            citationsHTML = `
-                <details class="citations">
-                    <summary>Retrieved Synthesis Context</summary>
-                    <div class="citations-list">
-                        ${chunksList}
+            const subQList = pipeline.subQueries && pipeline.subQueries.length > 1
+                ? pipeline.subQueries.map(q => `<li>${escapeHTML(q)}</li>`).join('')
+                : '';
+
+            pipelineHTML = `
+            <details class="pipeline-trace">
+                <summary>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Pipeline Trace · ⚡ Fast RAG
+                </summary>
+                <div class="trace-grid">
+                    <div class="trace-row">
+                        <span class="trace-label">① Query Rewrite</span>
+                        <span class="trace-value ${didRewrite ? 'highlight' : ''}">
+                            ${didRewrite
+                                ? `<s class="trace-original">${escapeHTML(pipeline.originalQuery)}</s> → <strong>${escapeHTML(pipeline.rewrittenQuery)}</strong>`
+                                : escapeHTML(pipeline.rewrittenQuery) + ' <span class="trace-tag ok">no change</span>'}
+                        </span>
                     </div>
-                </details>
-            `;
+                    <div class="trace-row">
+                        <span class="trace-label">② Retrieval</span>
+                        <span class="trace-value"><span class="trace-count">${pipeline.chunksRetrieved}</span> chunks</span>
+                    </div>
+                    <div class="trace-row">
+                        <span class="trace-label">③ In Context</span>
+                        <span class="trace-value"><span class="trace-count">${pipeline.chunksInContext}</span> chunks</span>
+                    </div>
+                </div>
+            </details>`;
         }
 
-        const msgHTML = `
+        // ── Citations ────────────────────────────────────────────────────
+        let citationsHTML = '';
+        if (chunks && chunks.length > 0) {
+            const chunkItems = chunks.map((c, i) => {
+                const score = c.score != null ? c.score : null;
+                const scoreClass = score >= 7 ? 'score-high' : score >= 4 ? 'score-mid' : 'score-low';
+                return `
+                <div class="citation-chunk">
+                    <div class="citation-header">
+                        <strong>MEM-NODE ${i + 1}</strong>
+                        ${score != null ? `<span class="score-badge ${scoreClass}">${score.toFixed(1)}/10</span>` : ''}
+                    </div>
+                    <p class="citation-text">${escapeHTML(c.pageContent.substring(0, 200))}…</p>
+                </div>`;
+            }).join('');
+            citationsHTML = `
+            <details class="citations">
+                <summary>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    Source Chunks · ${chunks.length} used
+                </summary>
+                <div class="citations-list">${chunkItems}</div>
+            </details>`;
+        }
+
+        messagesContainer.insertAdjacentHTML('beforeend', `
             <div class="message system-message" id="${id}">
                 <div class="message-avatar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v4h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-2a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h1V8H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h6z"></path></svg>
                 </div>
                 <div class="message-content">
                     ${htmlContent}
+                    ${pipelineHTML}
                     ${citationsHTML}
                 </div>
-            </div>
-        `;
-        
-        messagesContainer.insertAdjacentHTML('beforeend', msgHTML);
+            </div>`);
         scrollToBottom();
         return id;
     }
 
     function addTypingIndicator() {
         const id = 'msg-' + Date.now();
-        const msgHTML = `
+        messagesContainer.insertAdjacentHTML('beforeend', `
             <div class="message system-message" id="${id}">
                 <div class="message-avatar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v4h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-2a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h1V8H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h6z"></path></svg>
@@ -264,9 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="typing-dot"></div>
                     </div>
                 </div>
-            </div>
-        `;
-        messagesContainer.insertAdjacentHTML('beforeend', msgHTML);
+            </div>`);
         scrollToBottom();
         return id;
     }
@@ -276,14 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function escapeHTML(str) {
-        return str.replace(/[&<>'"]/g, 
-            tag => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                "'": '&#39;',
-                '"': '&quot;'
-            }[tag] || tag)
-        );
+        return String(str).replace(/[&<>'"`]/g,
+            t => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;','`':'&#96;' }[t] || t));
     }
 });

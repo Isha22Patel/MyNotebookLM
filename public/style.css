@@ -681,6 +681,283 @@ body {
     margin-bottom: 4px;
 }
 
+/* Header right group */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Compose hint */
+.compose-hint {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+/* ── Mode Section ────────────────────────────────────────────────────────── */
+.mode-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mode-toggle-group {
+    display: flex;
+    background: var(--surface-main);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+    gap: 3px;
+}
+
+.mode-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 8px;
+    border: none;
+    border-radius: 4px;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+    background: white;
+    color: var(--brand-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.mode-btn:hover:not(.active) {
+    color: var(--text-strong);
+    background: rgba(255,255,255,0.5);
+}
+
+.mode-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* ── Pipeline Legend ─────────────────────────────────────────────────────── */
+.pipeline-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stage-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--text-base);
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: opacity 0.3s ease;
+}
+
+.stage-item.dimmed {
+    opacity: 0.3;
+}
+
+.stage-num {
+    font-size: 0.8rem;
+    color: var(--brand-primary);
+    font-weight: 700;
+    width: 18px;
+    flex-shrink: 0;
+}
+
+/* ── Pipeline Trace ──────────────────────────────────────────────────────── */
+.pipeline-trace {
+    margin-top: 16px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: white;
+}
+
+.pipeline-trace summary {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #7C3AED;
+    background: #F5F3FF;
+    border-bottom: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    user-select: none;
+}
+
+.pipeline-trace summary::-webkit-details-marker { display: none; }
+
+.pipeline-trace[open] summary {
+    border-bottom-color: #E0D7FF;
+}
+
+.pipeline-trace summary::after {
+    content: '▸';
+    margin-left: auto;
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+}
+
+.pipeline-trace[open] summary::after {
+    transform: rotate(90deg);
+}
+
+.trace-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.trace-row {
+    display: flex;
+    gap: 12px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    align-items: flex-start;
+}
+
+.trace-row:last-child { border-bottom: none; }
+
+.trace-label {
+    min-width: 110px;
+    font-weight: 600;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    padding-top: 1px;
+}
+
+.trace-value {
+    color: var(--text-strong);
+    flex: 1;
+}
+
+.trace-value.highlight {
+    color: #7C3AED;
+}
+
+.trace-original {
+    color: var(--text-muted);
+    text-decoration-color: #F87171;
+    text-decoration-thickness: 2px;
+}
+
+.trace-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.trace-tag.ok {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.trace-tag.skip {
+    background: var(--surface-main);
+    color: var(--text-muted);
+}
+
+.trace-count {
+    display: inline-block;
+    background: var(--brand-light);
+    color: var(--brand-primary);
+    font-weight: 700;
+    padding: 0 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-right: 2px;
+}
+
+.trace-list {
+    margin: 2px 0 0 14px;
+    padding: 0;
+    list-style: disc;
+}
+
+.trace-list li { margin-bottom: 2px; }
+
+/* ── Score Badges on Citations ───────────────────────────────────────────── */
+.citation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.score-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+}
+
+.score-high {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.score-mid {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.score-low {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.citation-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Update citations summary to match trace style ───────────────────────── */
+.citations summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.citations summary::after {
+    content: '▸';
+    margin-left: auto;
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+}
+
+.citations[open] summary::after {
+    transform: rotate(90deg);
+}
+
 /* Typing indicator adjustment */
 .typing-indicator {
     display: flex;

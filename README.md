@@ -8,12 +8,14 @@ Inspired by Google's NotebookLM, this project is built completely from scratch u
 
 # 🚀 Features
 
-- Full RAG Pipeline (Ingestion → Chunking → Embedding → Retrieval → Generation)
+- Advanced 3-Stage RAG Pipeline (Query Rewriting → Fast Retrieval → Final Generation)
+- Automated Typo Correction and Query Intent Optimization
 - Upload and chat with PDF & TXT documents
 - Semantic search using vector embeddings
+- Dynamic Token Trimming to prevent context bloat
 - Grounded AI responses with minimal hallucination
 - In-memory vector storage for fast retrieval
-- Modern UI built with Vanilla HTML, CSS, and JavaScript
+- Modern UI with premium dark mode and glassmorphism
 
 ---
 
@@ -23,7 +25,7 @@ Inspired by Google's NotebookLM, this project is built completely from scratch u
 - **Frontend:** HTML5, CSS3, Vanilla JS
 - **AI Framework:** LangChain JS
 - **Embeddings:** `gemini-embedding-2`
-- **LLM:** `gemini-2.5-flash`
+- **LLM:** `gemini-flash-latest`
 - **Vector Store:** `MemoryVectorStore`
 - **Document Parsing:** Multer, PDFLoader, pdf-parse
 
@@ -79,7 +81,7 @@ The app uses `multer` memory storage to securely buffer uploaded files without p
 
 ---
 
-## 2. Chunking
+## 2. Chunking Strategy
 
 Implemented **Recursive Character Text Splitting** using:
 
@@ -92,9 +94,9 @@ RecursiveCharacterTextSplitter
 - **Chunk Size:** `1000 characters`
 - **Chunk Overlap:** `200 characters`
 
-### Why?
+### Why this strategy?
 
-This strategy intelligently splits text by paragraphs, sentences, and words while preserving semantic meaning and avoiding context loss.
+This chunking strategy intelligently splits text by paragraphs, sentences, and words while preserving semantic meaning and avoiding context loss. An overlap of 200 characters ensures that concepts spanning across chunk boundaries are not lost, providing better context for the LLM during generation.
 
 ---
 
@@ -106,36 +108,25 @@ Chunks are converted into embeddings using:
 gemini-embedding-2
 ```
 
-via:
-
-```js
-GoogleGenerativeAIEmbeddings
-```
-
-The embeddings are stored inside:
-
-```js
-MemoryVectorStore
-```
-
-Each uploaded document gets a unique `docId`.
+via `GoogleGenerativeAIEmbeddings`. The embeddings are stored inside an in-memory `MemoryVectorStore`. Each uploaded document gets a unique `docId`.
 
 ---
 
-## 4. Retrieval & Generation
+## 4. Advanced RAG Pipeline (3-Stage)
 
-When a user asks a question:
+When a user asks a question, it goes through an optimized 3-stage pipeline:
 
-1. The query is embedded
-2. Top relevant chunks are retrieved
-3. Retrieved chunks are injected into the prompt
-4. Response is generated using:
+### Stage 1: Query Rewriting
+- The user's query is passed to an LLM (`gemini-flash-latest`) to fix spelling mistakes, correct grammatical errors, and rephrase for optimal semantic search retrieval.
 
-```txt
-gemini-2.5-flash
-```
+### Stage 2: Fast Vector Retrieval
+- The rewritten query is embedded and used to retrieve the top 6 most relevant chunks (`k: 6`).
+- **Token Trimming:** The retrieved chunks are dynamically trimmed so that the total context size stays under 6000 characters, preventing context window bloat and reducing latency.
 
-The model is forced to answer ONLY from the provided document context to minimize hallucinations.
+### Stage 3: Final Generation
+- The trimmed context and rewritten query are injected into the final prompt.
+- The model (`gemini-flash-latest`) generates a response, strictly using ONLY the provided document context to minimize hallucinations.
+- The response also includes a note if the original query was modified due to typos.
 
 ---
 
