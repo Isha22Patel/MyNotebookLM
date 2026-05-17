@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const docName           = document.getElementById('doc-name');
     const docStatusText     = document.getElementById('doc-status-text');
     const docStatusIndicator= document.getElementById('doc-status-indicator');
-    const newChatBtn        = document.getElementById('new-chat-btn');
-
     const chatForm          = document.getElementById('chat-form');
     const chatInput         = document.getElementById('chat-input');
     const sendBtn           = document.getElementById('send-btn');
@@ -100,14 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ── New Chat ─────────────────────────────────────────────────────────────
-    newChatBtn.addEventListener('click', () => {
-        if (!currentDocId) return;
-        messagesContainer.querySelectorAll('.message').forEach(m => m.remove());
-        welcomeScreen.classList.add('hidden');
-        addSystemMessage(`New session started for **${currentDocFileName}**. What would you like to know?`, null, null);
-        chatInput.focus();
-    });
 
     // ── Chat Submit ──────────────────────────────────────────────────────────
     chatForm.addEventListener('submit', async e => {
